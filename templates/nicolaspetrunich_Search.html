@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>miRNA Gene Target Search</title>
+</head>
+<body>
+    <!-- Page Explanation -->
+    <h1>miRNA Gene Target Search</h1>
+    <p>
+      This page allows you to search for genes targeted by two miRNAs. Enter the names of two miRNAs
+      in the fields below, select a maximum targeting score, and click “Search.” 
+      Suggested miRNAs: <strong>hsa-let-7a</strong> and <strong>hsa-miR-1294</strong>.
+    </p>
+
+    <!-- Display error message if present -->
+    {% if error %}
+        <p style="color:red;">{{ error | safe }}</p>
+    {% endif %}
+
+    <!-- Search Form -->
+    <form method="get" action="nicolaspetrunich_Search">
+        <label for="mirna1">miRNA 1:</label>
+        <input type="text" name="mirna1" id="mirna1" value="{{ mirna1 }}">
+        <br><br>
+        
+        <label for="mirna2">miRNA 2:</label>
+        <input type="text" name="mirna2" id="mirna2" value="{{ mirna2 }}">
+        <br><br>
+        
+        <label for="max_score">Maximum Targeting Score:</label>
+        <select name="max_score" id="max_score">
+            {% for score in ['-0.1','-0.2','-0.3','-0.4','-0.5','-0.6','-0.7'] %}
+                <option value="{{ score }}" {% if max_score == score %}selected{% endif %}>
+                    score ≤ {{ score }}
+                </option>
+            {% endfor %}
+        </select>
+        <br><br>
+        
+        <input type="submit" value="Search">
+    </form>
+
+    <!-- Results Summary and Table -->
+    {% if request.args and not error %}
+        <h2>Results Summary</h2>
+        <p>
+            There are {{ count }} genes targeted by both miRNAs 
+            <strong>{{ mirna1 }}</strong> and <strong>{{ mirna2 }}</strong> 
+            with scores ≤ <strong>{{ max_score }}</strong>.
+        </p>
+        {% if results %}
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>gid</th>
+                        <th>gene name</th>
+                        <th>{{ mirna1 }} score</th>
+                        <th>{{ mirna2 }} score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in results %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                        <td>{{ row[2] }}</td>
+                        <td>{{ row[3] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
